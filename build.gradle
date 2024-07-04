@@ -12,13 +12,15 @@ java {
     withSourcesJar()
 }
 
-var gsonVersion = "2.11.0"
-var jacksonVersion = "2.17.1"
-var apacheConfigs = "2.11.0"
+ext {
+    gsonVersion = "2.11.0"
+    jacksonVersion = "2.17.1"
+    apacheConfigs = "2.11.0"
 
-var signingPassword = "my_pgp_key"
-var signingKeyId = "1C851C69"
-var signingFilePath = "F:\\private_key.asc"
+    signingPassword = "my_pgp_key"
+    signingKeyId = "1C851C69"
+    signingFilePath = "D:\\private_key.asc"
+}
 
 repositories {
     mavenCentral()
@@ -40,9 +42,12 @@ publishing {
                 developers {
                     developer {
                         id = 'wertyfire'
-                        name = 'Wertyfire'
-                        email = 'sw405@yandex.ru'
+                        name = 'Stepan Kovalenko'
+                        email ='sw405@yandex.ru'
                     }
+                }
+                scm {
+                    connection = 'scm:git:git://github.com/'
                 }
             }
         }
@@ -52,10 +57,4 @@ publishing {
 signing {
     useInMemoryPgpKeys(signingKeyId, file(signingFilePath).text, signingPassword)
     sign(configurations.archives)
-}
-
-javadoc {
-    if (JavaVersion.current().isJava9Compatible()) {
-        options.addBooleanOption('html5', true)
-    }
 }
