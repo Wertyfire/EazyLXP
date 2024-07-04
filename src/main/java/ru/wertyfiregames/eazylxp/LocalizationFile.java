@@ -12,7 +12,7 @@ public class LocalizationFile {
     private ILXParser lxParser;
 
     public LocalizationFile(String lxFilepath, String defaultLanguage) {
-        if (lxFilepath.endsWith(".lxc")) {
+        if (lxFilepath.endsWith(".lxc") || lxFilepath.endsWith(".lexc")) {
             if (lxFilepath.startsWith("/"))
                 lxParser = new LXCParser(new File(lxFilepath), defaultLanguage);
             else {
