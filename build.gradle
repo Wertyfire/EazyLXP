@@ -42,12 +42,14 @@ publishing {
                 developers {
                     developer {
                         id = 'wertyfire'
-                        name = 'Stepan Kovalenko'
+                        name = 'Wertyfire'
                         email ='sw405@yandex.ru'
                     }
                 }
                 scm {
-                    connection = 'scm:git:git://github.com/'
+                    connection = 'scm:git:git://github.com/Wertyfire/EazyLXP.git'
+                    developerConnection = 'scm:git:ssh://github.com/Wertyfire/EazyLXP.git'
+                    url = 'https://github.com/Wertyfire/EazyLXP'
                 }
             }
         }
