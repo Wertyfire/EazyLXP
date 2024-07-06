@@ -5,7 +5,7 @@ plugins {
 }
 
 group = "io.github.wertyfire"
-version = "0.3"
+version = "1.0"
 
 java {
     withJavadocJar()
@@ -17,9 +17,9 @@ ext {
     jacksonVersion = "2.17.1"
     apacheConfigs = "2.11.0"
 
-    signingPassword = "my_pgp_key"
-    signingKeyId = "1C851C69"
-    signingFilePath = "D:\\private_key.asc"
+    signPassword = findProperty("signingPassword")
+    signKeyId = findProperty("signingKeyID")
+    signFilePath = findProperty("signingFilePath")
 }
 
 repositories {
@@ -31,7 +31,7 @@ publishing {
         mavenJava(MavenPublication) {
             pom {
                 name = 'EazyLXP'
-                description = 'Library for reading .lxp files (Localization eXtension Package).'
+                description = 'Library for reading .lxc (Localixation eXtension Container) and .lxp files (Localization eXtension Package).'
                 url = ''
                 licenses {
                     license {
@@ -57,6 +57,6 @@ publishing {
 }
 
 signing {
-    useInMemoryPgpKeys(signingKeyId, file(signingFilePath).text, signingPassword)
+    useInMemoryPgpKeys(signKeyId, file(signFilePath).text, signPassword)
     sign(configurations.archives)
 }
