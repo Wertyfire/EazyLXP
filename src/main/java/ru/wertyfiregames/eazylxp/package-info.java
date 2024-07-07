@@ -19,7 +19,7 @@
  * but next you should call method {@link ru.wertyfiregames.eazylxp.LocalizationFile#setLanguage(java.lang.String) setLanguage}.
  * On next lines you can add translations in format "translation_key|" and then write translations
  * according to <em>header</em>. If not all translations added, program will throw {@link ru.wertyfiregames.eazylxp.LXCSyntaxException new LXCSyntaxException()}.
- * You can add one-line comments by writing '#'. All text after '#' will be commented. You can't cancel commenting.
+ * You can add one-line comments by writing '#' but comment lines supported <em>only</em> after header on the next line. All text after '#' will be commented. You can't cancel commenting.
  * <h3>1.2: Parsing code and getting it from file:</h3>
  * <blockquote><pre>{@code
  * package default;

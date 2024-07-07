@@ -24,6 +24,12 @@ public class LocalizationFile {
      * */
     private ILXParser lxParser;
 
+    /**
+     * Checks file extension and if it ends with .lxc or .lexc set lxParser to
+     * new LXCParser(new File(lxFilepath), defaultLanguage)
+     * @since 1.0
+     * @see LocalizationFile#LocalizationFile(File, String)
+     * */
     public LocalizationFile(String lxFilepath, String defaultLanguage) {
         if (lxFilepath.endsWith(".lxc") || lxFilepath.endsWith(".lexc")) {
             if (!lxFilepath.startsWith("/"))
@@ -35,6 +41,18 @@ public class LocalizationFile {
                     throw new RuntimeException(e);
                 }
             }
+        }
+    }
+
+    /**
+     * Same as {@linkplain LocalizationFile#LocalizationFile(String, String)}
+     * but requires File instead of filepath.
+     * @since 1.1
+     * @see LocalizationFile#LocalizationFile(String, String)
+     * */
+    public LocalizationFile(File lxFile, String defaultLanguage) {
+        if (lxFile.getAbsolutePath().endsWith(".lxc") || lxFile.getAbsolutePath().endsWith(".lexc")) {
+            lxParser = new LXCParser(lxFile, defaultLanguage);
         }
     }
 
