@@ -29,6 +29,10 @@ public class LXCParser implements ILXParser {
      * @see #setLanguage(String)
      * */
     private String language;
+    /**
+     * Latest supported version of lxc.
+     * @since 1.0
+     * */
     public final int LATEST_LXC_VERSION = 2;
     /**
      * Translations from file. Map{String key, Map{String language, String value}}
