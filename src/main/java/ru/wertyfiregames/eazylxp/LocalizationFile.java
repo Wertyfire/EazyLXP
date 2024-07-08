@@ -41,6 +41,16 @@ public class LocalizationFile {
                     throw new RuntimeException(e);
                 }
             }
+        } else if (lxFilepath.endsWith(".lxp") || lxFilepath.endsWith(".lexp")) {
+            if (!lxFilepath.startsWith("/"))
+                lxParser = new LXPParser(new File(lxFilepath), defaultLanguage);
+            else {
+                try {
+                    lxParser = new LXPParser(new File(Objects.requireNonNull(getClass().getResource(lxFilepath)).toURI()), defaultLanguage);
+                } catch (URISyntaxException e) {
+                    throw new RuntimeException(e);
+                }
+            }
         }
     }
 
@@ -53,6 +63,8 @@ public class LocalizationFile {
     public LocalizationFile(File lxFile, String defaultLanguage) {
         if (lxFile.getAbsolutePath().endsWith(".lxc") || lxFile.getAbsolutePath().endsWith(".lexc")) {
             lxParser = new LXCParser(lxFile, defaultLanguage);
+        } else if (lxFile.getAbsolutePath().endsWith("'lxp") || lxFile.getAbsolutePath().endsWith(".lexp")) {
+            lxParser = new LXPParser(lxFile, defaultLanguage);
         }
     }
 
