@@ -18,6 +18,7 @@ public class LXCSyntaxException extends Exception {
     /**
      * Constructs a {@code LXCSyntaxException} with no
      * detail message.
+     * @since 1.0
      * */
     public LXCSyntaxException() {
         super();
@@ -27,6 +28,7 @@ public class LXCSyntaxException extends Exception {
      * Constructs a {@code LXCSyntaxException} with the
      * specified detail message.
      * @param s the detail message.
+     * @since 1.0
      * */
     public LXCSyntaxException(String s) {
         super(s);
