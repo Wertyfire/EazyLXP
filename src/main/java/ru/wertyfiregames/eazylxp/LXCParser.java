@@ -33,7 +33,7 @@ public class LXCParser implements ILXParser {
      * Latest supported version of lxc.
      * @since 1.0
      * */
-    public final int LATEST_LXC_VERSION = 2;
+    public final int LATEST_LXC_VERSION = 3;
     /**
      * Translations from file. Map{String key, Map{String language, String value}}
      * @since 1.0
@@ -84,14 +84,14 @@ public class LXCParser implements ILXParser {
      * */
     private void processStrings() throws LXCSyntaxException {
         try (BufferedReader reader = new BufferedReader(new FileReader(lxc))) {
-            String v = reader.readLine();
+            String v = readLine(reader);
             if (!v.startsWith("!version "))
                 throw new LXCSyntaxException("Invalid syntax of lxc. File not starts with !version");
             int version = Integer.parseInt(v.substring(v.indexOf("n") + 2));
             if (version > 0 && version <= LATEST_LXC_VERSION - 1)
                 throw new LXCSyntaxException("You trying to parse lxc file using version " + version + ", but last supported version is 2. Make sure that you entered correct version or update library to latest version.");
 
-            String header = reader.readLine();
+            String header = readLine(reader);
             if (header == null)
                 throw new LXCSyntaxException("LXC header is null!");
 
@@ -102,7 +102,7 @@ public class LXCParser implements ILXParser {
 
             String line;
 
-            while ((line = reader.readLine()) != null) {
+            while ((line = readLine(reader)) != null) {
                 if (line.contains("#")) {
                     if (line.startsWith("#"))
                         continue;
@@ -130,17 +130,20 @@ public class LXCParser implements ILXParser {
     /**
      * Set current language to {@code newLanguage}.
      * @param newLanguage new language.
+     * @since 1.0
      * */
     public void setLanguage(String newLanguage) {
         language = newLanguage;
     }
 
     /**
-     * Get index of language {@code language} from <em>header</em>. Can be used for debug.
+     * Get index of language {@code language} from <em>header</em>. Exists for debugging.
      * @return index of {@code language}.
      * @param language language name from <em>header</em>.
+     * @since 1.0
      * @see #languagesIndex
      * */
+    @SuppressWarnings("unused")
     public int getLanguageIndex(String language) {
         return languagesIndex.get(language);
     }
@@ -149,6 +152,7 @@ public class LXCParser implements ILXParser {
      * Get value of {@code key} from file.
      * @return value of{@code key}.
      * @param key key of translation from file.
+     * @since 1.0
      * @see #translations
      * */
     public String get(String key) {
@@ -159,5 +163,33 @@ public class LXCParser implements ILXParser {
                 return translation;
         }
         return key;
+    }
+
+    /**
+     * Read next line and return it if line doesn't comment or empty and removes all comments.
+     * @return valid line
+     * @param reader initialized BufferedReader.
+     * @since 1.1
+     * */
+    private String readLine(BufferedReader reader) throws IOException {
+        String line;
+
+        while ((line = reader.readLine()) != null) {
+            line = line.trim();
+
+            if (line.isEmpty())
+                continue;
+
+            if (line.startsWith("#"))
+                continue;
+
+            int hashIndex = line.indexOf('#');
+            if (hashIndex != -1)
+                line = line.substring(0, hashIndex).trim();
+
+            return line;
+        }
+
+        return null;
     }
 }

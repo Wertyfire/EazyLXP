@@ -5,13 +5,13 @@
  * LXC Can be in 2 extensions: .lxc and .lexc. There is no difference.
  * Example syntax of file:
  * <blockquote><pre>
- * !version 2
+ * !version 3
  * key|language_one|language_two
  * key_of_translation|Translation on language one|Translation on language two
  * other_key|Other key|Yek rehto
  * </pre></blockquote>
- * On first line we settings version of lxc. Current supported by this version of library (1.0) is 2,
- * so we should write '!version 2'.<p>
+ * On first line we settings version of lxc. Current supported by this version of library (1.1) is 3,
+ * so we should write '!version 3'.<p>
  * Next line - header. Here you can specify languages that supported by your program.
  * Line should start with "key|" and then you can add new languages by adding '|' and
  * then writing language names.
@@ -19,7 +19,7 @@
  * but next you should call method {@link ru.wertyfiregames.eazylxp.LocalizationFile#setLanguage(java.lang.String) setLanguage}.
  * On next lines you can add translations in format "translation_key|" and then write translations
  * according to <em>header</em>. If not all translations added, program will throw {@link ru.wertyfiregames.eazylxp.LXCSyntaxException new LXCSyntaxException()}.
- * You can add one-line comments by writing '#' but comment lines supported <em>only</em> after header on the next line. All text after '#' will be commented. You can't cancel commenting.
+ * You can add one-line comments by writing '#'. All text after '#' will be commented. You can't cancel commenting.
  * <h3>1.2: Parsing code and getting it from file:</h3>
  * <blockquote><pre>{@code
  * package default;
