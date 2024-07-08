@@ -1,6 +1,5 @@
 plugins {
     id 'java-library'
-    id 'maven-publish'
     id 'signing'
 }
 
@@ -13,10 +12,6 @@ java {
 }
 
 ext {
-    gsonVersion = "2.11.0"
-    jacksonVersion = "2.17.1"
-    apacheConfigs = "2.11.0"
-
     signPassword = findProperty("signingPassword")
     signKeyId = findProperty("signingKeyID")
     signFilePath = findProperty("signingFilePath")
@@ -24,36 +19,6 @@ ext {
 
 repositories {
     mavenCentral()
-}
-
-publishing {
-    publications {
-        mavenJava(MavenPublication) {
-            pom {
-                name = 'EazyLXP'
-                description = 'Library for reading .lxc (Localixation eXtension Container) and .lxp files (Localization eXtension Package).'
-                url = ''
-                licenses {
-                    license {
-                        name = 'The Apache License, Version 2.0'
-                        url = 'http://www.apache.org/licenses/LICENSE-2.0.txt'
-                    }
-                }
-                developers {
-                    developer {
-                        id = 'wertyfire'
-                        name = 'Wertyfire'
-                        email ='sw405@yandex.ru'
-                    }
-                }
-                scm {
-                    connection = 'scm:git:git://github.com/Wertyfire/EazyLXP.git'
-                    developerConnection = 'scm:git:ssh://github.com/Wertyfire/EazyLXP.git'
-                    url = 'https://github.com/Wertyfire/EazyLXP'
-                }
-            }
-        }
-    }
 }
 
 signing {
