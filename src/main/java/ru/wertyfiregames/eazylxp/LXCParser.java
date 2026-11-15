@@ -6,8 +6,9 @@ package ru.wertyfiregames.eazylxp;
 
 import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileReader;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -80,7 +81,7 @@ public class LXCParser implements ILXParser {
      * @since 1.0
      * */
     private void processStrings() throws IOException, LXCSyntaxException {
-        try (BufferedReader reader = new BufferedReader(new FileReader(lxc))) {
+        try (BufferedReader reader = Files.newBufferedReader(lxc.toPath(), StandardCharsets.UTF_8)) {
             String v = readLine(reader);
             if (v == null ||!v.startsWith("!version "))
                 throw new LXCSyntaxException("Invalid LXC syntax: file must start with '!version '.");
