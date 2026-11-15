@@ -26,7 +26,10 @@ tasks.withType(JavaExec).configureEach {
 
 tasks.named('jar') {
     archiveClassifier = 'runtime'
-    archiveFileName = "eazylxp"
+}
+
+base {
+    archivesName = "eazylxp"
 }
 
 publishing {
@@ -36,7 +39,7 @@ publishing {
             from components.java
 
             pom {
-                name = 'EazyLXP'
+                name = 'eazylxp'
                 description = 'Library for reading .lxc and .lxp localization files'
                 url = 'https://github.com/Wertyfire/EazyLXP'
 
