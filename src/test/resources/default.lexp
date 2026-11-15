@@ -1,24 +1,23 @@
-version (1);
+!version 3
 
-meta {
-    order {
-        key {
-            english,
-            russian,
-            uzbek
-        }
-    }
+languages {
+    en
+    ru
 }
 
-translations {
-    hello {
-        Hello!,
-        Привет!,
-        Ай братан шаверма какой вкусный эээ
-    },
-    welcome {
-        Welcome,
-        Добро пожаловать,
-        Эээ дабьро пажалавать!
+translation {
+    sword {
+        en {
+            one: Sword
+            few: Swords
+            many: Swords
+        }
+    }
+    item_picked_up {
+        placeholders {
+            sword
+        }
+        en {
+        }
     }
 }

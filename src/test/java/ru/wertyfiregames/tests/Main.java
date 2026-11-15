@@ -9,7 +9,9 @@ import ru.wertyfiregames.eazylxp.LocalizationFile;
 public class Main {
     static void main(String... args) {
         LocalizationFile lxc = new LocalizationFile("/default.lexc", "russian");
-        lxc.setLanguage("uzbek");
-        System.out.println(lxc.get("hello"));
+        LocalizationFile lxcMerge = new LocalizationFile("/merge_translations.lxc", "english");
+        lxc = lxc.merge(lxcMerge, true);
+        lxc.setLanguage("english");
+        System.out.println(lxc.get("hello_world"));
     }
 }
