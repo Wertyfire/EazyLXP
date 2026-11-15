@@ -1,27 +1,68 @@
 plugins {
     id 'java-library'
+    id 'maven-publish'
     id 'signing'
 }
 
-group = "io.github.wertyfire"
-version = "1.0"
+group = "ru.wertyfiregames"
+version = "1.2"
 
 java {
     withJavadocJar()
     withSourcesJar()
 }
 
-ext {
-    signPassword = findProperty("signingPassword")
-    signKeyId = findProperty("signingKeyID")
-    signFilePath = findProperty("signingFilePath")
-}
-
 repositories {
     mavenCentral()
 }
 
-signing {
-    useInMemoryPgpKeys(signKeyId, file(signFilePath).text, signPassword)
-    sign(configurations.archives)
+tasks.named('test') {
+    failOnNoDiscoveredTests = false
 }
+
+tasks.withType(JavaExec).configureEach {
+    jvmArgs '-Dsun.stdout.encoding=UTF-8', '-Dsun.stderr.encoding=UTF-8'
+}
+
+tasks.named('jar') {
+    archiveClassifier = 'runtime'
+}
+
+publishing {
+    publications {
+        mavenJava(MavenPublication) {
+            artifactId = 'eazylxp'
+            from components.java
+
+            pom {
+                name = 'EazyLXP'
+                description = 'Library for reading .lxc and .lxp localization files'
+                url = 'https://github.com/Wertyfire/EazyLXP'
+
+                licenses {
+                    license {
+                        name = 'MIT License'
+                        url = 'https://github.com/Wertyfire/EazyLXP/blob/master/LICENSE'
+                    }
+                }
+
+                developers {
+                    developer {
+                        id = 'Wertyfire'
+                    }
+                }
+            }
+        }
+    }
+
+    repositories {
+        maven {
+            name = 'localRepo'
+            url = layout.buildDirectory.dir('repo')
+        }
+    }
+}
+
+//signing {
+//    sign publishing.publications.mavenJava
+//}
