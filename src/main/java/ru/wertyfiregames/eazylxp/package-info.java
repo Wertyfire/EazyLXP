@@ -7,22 +7,24 @@
  * <blockquote><pre>
  * !version 3
  * key|language_one|language_two
+ *
+ * #Comment
  * key_of_translation|Translation in language one|Translation in language two
- * other_key|Other key|Yek rehto
+ * other_key|Other key|Yek rehto#Another comment
  * </pre></blockquote>
- * On the first line, you set the version of LXC. The version currently supported by this library (1.2) is 3,
+ * On the first line, you set the version of LXC. The version currently supported by this library (1.3) is 3,
  * so you should write '!version 3'.<p>
  * The next line is the header. Here you can specify the languages supported by your program.
  * The line should start with "key" and then you can add new languages by typing '|' followed by the language names.
  * There are no limits or rules for languages - you can write whatever you want,
  * as long as you pass the exact same name to the {@link ru.wertyfiregames.eazylxp.LocalizationFile#setLanguage(java.lang.String) setLanguage} method.
- * On the following lines you can add translations in the format "translation_key|" followeb by the translations
+ * On the following lines you can add translations in the format "translation_key|" followed by the translations
  * matching the <em>header</em>. If any translations are missing, the program will throw an {@link ru.wertyfiregames.eazylxp.LXCSyntaxException LXCSyntaxException}.
  * You can add one-line comments by writing '#'. All text after '#' is treated as a comment, and commenting cannot be canceled.
  * <h3>1.2: Parsing code and getting it from file:</h3>
  * You can write your own reader or use {@linkplain LocalizationFile}, which suppresses all exceptions.
  * <blockquote><pre>{@code
- * package default;
+ * package com.example;
  *
  * import ru.wertyfiregames.eazylxp.LocalizationFile;
  *
@@ -38,5 +40,7 @@
  * <p>
  * *note1: Here you can pass either new File("path/to/your/file.lxc") or write "path/to/your/file.lxc".
  * <p>If the path starts with '/', the program will search for the file using {@code getClass().getResource(path)}.
+ * You can also combine multiple localization files or add new languages at runtime using
+ * {@link LocalizationFile#merge(LocalizationFile)}.
  * */
 package ru.wertyfiregames.eazylxp;
