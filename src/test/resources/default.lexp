@@ -1,0 +1,24 @@
+version (1);
+
+meta {
+    order {
+        key {
+            english,
+            russian,
+            uzbek
+        }
+    }
+}
+
+translations {
+    hello {
+        Hello!,
+        Привет!,
+        Ай братан шаверма какой вкусный эээ
+    },
+    welcome {
+        Welcome,
+        Добро пожаловать,
+        Эээ дабьро пажалавать!
+    }
+}
