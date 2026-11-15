@@ -66,6 +66,7 @@ public class LXPParser implements ILXParser {
      * @see #LXPParser()
      * */
     public LXPParser(File file, String defaultLanguage) {
+        if (true) throw new UnsupportedOperationException("LXP format is not implemented yet.");
         lxp = file;
 
         language = defaultLanguage;
