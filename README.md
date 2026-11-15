@@ -122,7 +122,7 @@ public class StrictExample {
 
 # Roadmap
 
-* [ ] Create JetBrains IDE's plugin for highlighting syntax
+* [ ] Create JetBrains IDE's plugin for syntax highlighting
 
 ## LXC
 
