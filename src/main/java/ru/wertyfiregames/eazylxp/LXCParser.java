@@ -35,7 +35,7 @@ public class LXCParser implements ILXParser {
      * */
     public final int LATEST_LXC_VERSION = 3;
     /**
-     * Loaded translation mapped as {@code Map<String key, Map<String language, String value>>}
+     * Loaded translations mapped as {@code Map<String key, Map<String language, String value>>}
      * @since 1.0
      * @see #languagesIndex
      * */
@@ -91,7 +91,7 @@ public class LXCParser implements ILXParser {
             } catch (NumberFormatException e) {
                 throw new LXCSyntaxException("Invalid LXC version format: '" + v + "'.", e);
             }
-            if (version != LATEST_LXC_VERSION)
+            if (version < 1 || version > LATEST_LXC_VERSION)
                 throw new LXCSyntaxException("Unsupported LXC version: " + version + ". Expected version: " + LATEST_LXC_VERSION + ".");
 
             String header = readLine(reader);
@@ -121,6 +121,58 @@ public class LXCParser implements ILXParser {
     }
 
     /**
+     * Merges translations and languages from another {@code LXCParser} into this instance,
+     * overwriting existing translations when keys and languages collide.
+     * <p>This is a convenience overload for {@link #merge(LXCParser, boolean)} with
+     * {@code prioritizeNew} set to {@code true}.
+     * @param parser the {@code LXCParser} whose translations will be merged into this parser.
+     * @return this {@code LXCParser} instance after merging.
+     * @since 1.3
+     * @see #merge(LXCParser, boolean)
+     * */
+    public LXCParser merge(LXCParser parser) {
+        return merge(parser, true);
+    }
+
+    /**
+     * Merges translations and languages from another {@code LXCParser} into this instance.
+     * <p>Any languages present in {@code parser} that do not exist in this instance will be
+     * added automatically. If {@code parser} is {@code null} or refers to the same instance,
+     * no changes are made.
+     * @param parser the {@code LXCParser} whose translations will be merged into this parser.
+     * @param prioritizeNew {@code true} to overwrite existing translations when keys and languages
+     *                                  collide; {@code false} to preserve existing translations and
+     *                                  only add missing keys or languages.
+     * @return this {@code LXCParser} instance after merging.
+     * @since 1.3
+     * */
+    public LXCParser merge(LXCParser parser, boolean prioritizeNew) {
+        if (parser == null || this == parser) return this;
+
+        for (String lang : parser.languagesIndex.keySet()) {
+            if (!languagesIndex.containsKey(lang))
+                languagesIndex.put(lang, languagesIndex.size() + 1);
+        }
+
+        for (Map.Entry<String, Map<String, String>> entry : parser.translations.entrySet()) {
+            String key = entry.getKey();
+            Map<String, String> incoming = entry.getValue();
+            Map<String, String> existing = translations.get(key);
+
+            if (existing == null)
+                translations.put(key, new HashMap<>(incoming));
+            else {
+                for (Map.Entry<String, String> langEntry : incoming.entrySet()) {
+                    if (prioritizeNew) existing.put(langEntry.getKey(), langEntry.getValue());
+                    else existing.putIfAbsent(langEntry.getKey(), langEntry.getValue());
+                }
+            }
+        }
+
+        return this;
+    }
+
+    /**
      * Sets the current active language to {@code newLanguage}.
      * @param newLanguage the language name as defined in the file header.
      * @since 1.0
@@ -132,11 +184,11 @@ public class LXCParser implements ILXParser {
     /**
      * Returns the column index of the specified {@code language} in the file <em>header</em> (starting from 1).
      * @param language language name from <em>header</em>.
-     * @return the column index of {@code language}.
+     * @return the column index of {@code language}, or {@code -1} if the language is not found.
      * @since 1.0
      * */
     public int getLanguageIndex(String language) {
-        return languagesIndex.get(language);
+        return languagesIndex.getOrDefault(language, -1);
     }
 
     /**

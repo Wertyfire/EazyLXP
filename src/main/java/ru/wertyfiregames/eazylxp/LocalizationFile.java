@@ -74,6 +74,16 @@ public class LocalizationFile {
     }
 
     /**
+     * Creates a new {@code LocalizationFile} wrapping an existing {@link ILXParser} instance.
+     * If {@code fromParser} is {@code null}, {@link EmptyLXParser} is used as a fallback.
+     * @param fromParser the underlying {@link ILXParser} implementation to delegate calls to.
+     * @since 1.3
+     * */
+    public LocalizationFile(ILXParser fromParser) {
+        lxParser = fromParser != null ? fromParser : new EmptyLXParser();
+    }
+
+    /**
      * Initializes the appropriate {@link ILXParser} implementation based on the file extension.
      * @param lxFile the localization file to parse.
      * @param defaultLanguage the initial active language.
@@ -111,5 +121,38 @@ public class LocalizationFile {
      * */
     public String get(String key) {
         return lxParser.get(key);
+    }
+
+    /**
+     * Merges translations and languages from another {@code LocalizationFile} into this instance,
+     * overwriting existing translations when keys and languages collide.
+     * <p>This is a convenience overload for {@link #merge(LocalizationFile, boolean)} with
+     * {@code prioritizeNew} set to {@code true}.
+     * @param localization the {@code LocalizationFile} whose translations will be merged into this instance.
+     * @return this {@code LocalizationFile} instance after merging.
+     * @since 1.3
+     * @see #merge(LocalizationFile, boolean)
+     * */
+    public LocalizationFile merge(LocalizationFile localization) {
+        return merge(localization, true);
+    }
+
+    /**
+     * Merges translations and languages from another {@code LocalizationFile} into this instance.
+     * <p>If {@code localization} is {@code null}, refers to this instance, or uses an incompatible parser,
+     * no changes are made.
+     * @param localization the {@code LocalizationFile} whose translations will be merged into this instance.
+     * @param prioritizeNew {@code true} to overwrite existing translations when keys and languages
+     *                                  collide; {@code false} to preserve existing translations and
+     *                                  only add missing keys or languages.
+     * @return this {@code LocalizationFile} instance after merging.
+     * @since 1.3
+     * @see LXCParser#merge(LXCParser, boolean)
+     * */
+    public LocalizationFile merge(LocalizationFile localization, boolean prioritizeNew) {
+        if (localization != null && lxParser instanceof LXCParser currentParser && localization.lxParser instanceof LXCParser newParser) {
+            currentParser.merge(newParser, prioritizeNew);
+        }
+        return this;
     }
 }
