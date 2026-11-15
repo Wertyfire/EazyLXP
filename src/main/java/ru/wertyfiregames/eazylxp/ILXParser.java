@@ -5,22 +5,23 @@
 package ru.wertyfiregames.eazylxp;
 
 /**
- * Implementing this interface means creating new parser for LX. This is used in {@link LocalizationFile} to
- * parse multiply extensions (.lxc for default localization and .lxp for script-like translations).
+ * Implementing this interface defines a parser for LX localization formats. It is used by {@link LocalizationFile} to
+ * support multiple file extensions (@{code .lxc} for basic table-based localization and {@code .lxp} for script-like translations).
  * @since 1.0
  * @author Wertyfire
  * */
 public interface ILXParser {
     /**
-     * Method returns value of key in localization file in current language.
-     * @return value of {@code key} from localization according to current language setted by {@link #setLanguage(String)}.
-     * @param key key of translation in localization file.
+     * Returns the translated value for the specified {@code key} in the current language.
+     * @param key the translation key in the localization file.
+     * @return the translated value for {@code key} in the current language (configured via {@link #setLanguage(String)}), or {@code key} itself if not found.
      * @since 1.0
      * */
     String get(String key);
+
     /**
-     * Set current language to {@code newLanguage}.
-     * @param newLanguage new language.
+     * Sets the current active language to {@code newLanguage}.
+     * @param newLanguage the language name as defined in the localization file.
      * @since 1.0
      * */
     void setLanguage(String newLanguage);

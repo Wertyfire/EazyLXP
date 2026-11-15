@@ -12,7 +12,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Parser for .lxc and .lexc (the same) files.
+ * Parser for {@code .lxc} and {@code .lexc} files (identical formats).
  * @since 1.0
  * @author Wertyfire
  * */
@@ -23,8 +23,7 @@ public class LXCParser implements ILXParser {
      * */
     private final File lxc;
     /**
-     * Current language. Can be changed in constructor or by calling method
-     * {@link #setLanguage(String)}.
+     * The currently active language. Can be set in the constructor or changed via {@link #setLanguage(String)}.
      * @since 1.0
      * @see #setLanguage(String)
      * */
@@ -35,65 +34,68 @@ public class LXCParser implements ILXParser {
      * */
     public final int LATEST_LXC_VERSION = 3;
     /**
-     * Translations from file. Map{String key, Map{String language, String value}}
+     * Loaded translation mapped as {@code Map<String key, Map<String language, String value>>}
      * @since 1.0
      * @see #languagesIndex
      * */
     private final Map<String, Map<String, String>> translations = new HashMap<>();
     /**
-     * Indexes of language from <em>header</em> of lxc (See package info for more info).
+     * Column indices of language from the LXC <em>header</em> (see package documentation for details).
      * @since 1.0
      * @see #translations
      * */
     private final Map<String, Integer> languagesIndex = new HashMap<>();
 
     /**
-     * Private constructor so don't can instantiate empty class.
+     * Private constructor to prevent direct instantiation without parameters.
      * @since 1.0
      * @see #LXCParser(File, String)
      * */
-    @SuppressWarnings("unused")
     private LXCParser() {
         lxc = null;
     }
 
     /**
-     * Default constructor. Protected so instantiate can only from {@link LocalizationFile}. Set {@link #lxc}
-     * to {@code file}, {@link #language} to {@code defaultLanguage} and call {@link #processStrings()}
-     * @param file file from .lxc.
-     * @param defaultLanguage default language. To change use {@link #setLanguage(String)}
+     * Constructs a new {@code LXCParser} instance and immediately parses the specified file.
+     * Unlike {@link LocalizationFile}, which suppresses exceptions, this parser throws an
+     * {@link LXCSyntaxException} if the file syntax is invalid.
+     * @param file the {@code .lxc} or {@code .lexc} file to parse.
+     * @param defaultLanguage the initial language to use. Can be changed later via {@link #setLanguage(String)}.
+     * @throws IOException if an I/O error occurs while reading the file.
+     * @throws LXCSyntaxException if the file contains invalid LXC syntax.
      * @since 1.0
-     * @see #LXCParser()
+     * @see LocalizationFile
      * */
-    protected LXCParser(File file, String defaultLanguage) {
+    public LXCParser(File file, String defaultLanguage) throws IOException, LXCSyntaxException {
         lxc = file;
-
         language = defaultLanguage;
 
-        try {
-            processStrings();
-        } catch (LXCSyntaxException e) {
-            throw new RuntimeException(e.getMessage());
-        }
+        processStrings();
     }
 
     /**
      * Parse all lines in localization file. If syntax invalid, throws {@code LXCSyntaxException}.
-     * @since 1.0
+     * @throws IOException if an I/O error occurs while reading the file.
      * @throws LXCSyntaxException if lxc syntax is invalid.
+     * @since 1.0
      * */
-    private void processStrings() throws LXCSyntaxException {
+    private void processStrings() throws IOException, LXCSyntaxException {
         try (BufferedReader reader = new BufferedReader(new FileReader(lxc))) {
             String v = readLine(reader);
-            if (!v.startsWith("!version "))
-                throw new LXCSyntaxException("Invalid syntax of lxc. File not starts with !version");
-            int version = Integer.parseInt(v.substring(v.indexOf("n") + 2));
-            if (version > 0 && version <= LATEST_LXC_VERSION - 1)
-                throw new LXCSyntaxException("You trying to parse lxc file using version " + version + ", but last supported version is 2. Make sure that you entered correct version or update library to latest version.");
+            if (v == null ||!v.startsWith("!version "))
+                throw new LXCSyntaxException("Invalid LXC syntax: file must start with '!version '.");
+            int version;
+            try {
+                version = Integer.parseInt(v.substring(v.indexOf("n") + 2));
+            } catch (NumberFormatException e) {
+                throw new LXCSyntaxException("Invalid LXC version format: '" + v + "'.", e);
+            }
+            if (version != LATEST_LXC_VERSION)
+                throw new LXCSyntaxException("Unsupported LXC version: " + version + ". Expected version: " + LATEST_LXC_VERSION + ".");
 
             String header = readLine(reader);
             if (header == null)
-                throw new LXCSyntaxException("LXC header is null!");
+                throw new LXCSyntaxException("Missing LXC header: expected column definitions after the version line.");
 
             String[] headerParts = header.split("\\|");
             for (int i = 1; i < headerParts.length; i++) {
@@ -103,17 +105,9 @@ public class LXCParser implements ILXParser {
             String line;
 
             while ((line = readLine(reader)) != null) {
-                if (line.contains("#")) {
-                    if (line.startsWith("#"))
-                        continue;
-                    else {
-                        String[] translation = line.split("#");
-                        line = translation[0];
-                    }
-                }
-                String[] parts = line.split("\\|");
+                String[] parts = line.split("\\|", -1);
                 if (parts.length != headerParts.length)
-                    throw new LXCSyntaxException("Line '" + line + "' format does not equals to header '" + header + "'.");
+                    throw new LXCSyntaxException("Line '" + line + "' does not match the header format '" + header + "'.");
 
                 String key = parts[0];
                 Map<String, String> translationMap = new HashMap<>();
@@ -122,14 +116,12 @@ public class LXCParser implements ILXParser {
                 }
                 translations.put(key, translationMap);
             }
-        } catch (IOException e) {
-            throw new RuntimeException("Could not read lxc file! Error: " + e.getMessage());
         }
     }
 
     /**
-     * Set current language to {@code newLanguage}.
-     * @param newLanguage new language.
+     * Sets the current active language to {@code newLanguage}.
+     * @param newLanguage the language name as defined in the file header.
      * @since 1.0
      * */
     public void setLanguage(String newLanguage) {
@@ -137,23 +129,20 @@ public class LXCParser implements ILXParser {
     }
 
     /**
-     * Get index of language {@code language} from <em>header</em>. Exists for debugging.
-     * @return index of {@code language}.
+     * Returns the column index of the specified {@code language} in the file <em>header</em> (starting from 1).
      * @param language language name from <em>header</em>.
+     * @return the column index of {@code language}.
      * @since 1.0
-     * @see #languagesIndex
      * */
-    @SuppressWarnings("unused")
     public int getLanguageIndex(String language) {
         return languagesIndex.get(language);
     }
 
     /**
-     * Get value of {@code key} from file.
-     * @return value of{@code key}.
-     * @param key key of translation from file.
+     * Retrieves the translated value for the specified {@code key} in the current language.
+     * @param key the translation key from the file.
+     * @return the translated string for {@code key}, or {@code key} itself if no translation is found.
      * @since 1.0
-     * @see #translations
      * */
     public String get(String key) {
         Map<String, String> translationsMap = translations.get(key);
@@ -166,9 +155,10 @@ public class LXCParser implements ILXParser {
     }
 
     /**
-     * Read next line and return it if line doesn't comment or empty and removes all comments.
-     * @return valid line
-     * @param reader initialized BufferedReader.
+     * Reads the next non-empty line from the reader, stripping out any comments.
+     * @param reader an initialized {@code BufferedReader}.
+     * @return the next valid line, or {@code null} if the end of the stream is reached.
+     * @throws IOException if an I/O error occurs while reading.
      * @since 1.1
      * */
     private String readLine(BufferedReader reader) throws IOException {
