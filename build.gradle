@@ -26,6 +26,7 @@ tasks.withType(JavaExec).configureEach {
 
 tasks.named('jar') {
     archiveClassifier = 'runtime'
+    archiveFileName = "eazylxp"
 }
 
 publishing {
