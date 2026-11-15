@@ -19,4 +19,10 @@ public class EmptyLXParser implements ILXParser {
     public void setLanguage(String newLanguage) {
         //do nothing
     }
+
+    /**
+     * Constructs a new {@code EmptyLXParser} instance.
+     * @since 1.2
+     */
+    public EmptyLXParser() {}
 }

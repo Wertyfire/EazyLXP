@@ -6,7 +6,7 @@ package ru.wertyfiregames.eazylxp;
 
 /**
  * Implementing this interface defines a parser for LX localization formats. It is used by {@link LocalizationFile} to
- * support multiple file extensions (@{code .lxc} for basic table-based localization and {@code .lxp} for script-like translations).
+ * support multiple file extensions {@code .lxc} for basic table-based localization and {@code .lxp} for script-like translations).
  * @since 1.0
  * @author Wertyfire
  * */
