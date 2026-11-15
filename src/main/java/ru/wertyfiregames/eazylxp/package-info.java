@@ -1,5 +1,5 @@
 /**
- * This package contains classes for parsing localization files.
+ * Contains classes for parsing localization files.
  * <h2>How to use:</h2>
  * <h3>1.1: Localization Extension Container</h3>
  * LXC files can be saved with two extensions: .lxc and .lexc. There is no difference.
