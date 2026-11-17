@@ -4,6 +4,9 @@
 
 package ru.wertyfiregames.eazylxp;
 
+import java.io.File;
+import java.io.IOException;
+
 /**
  * Implementing this interface defines a parser for LX localization formats. It is used by {@link LocalizationFile} to
  * support multiple file extensions {@code .lxc} for basic table-based localization and {@code .lxp} for script-like translations).
@@ -25,4 +28,32 @@ public interface ILXParser {
      * @since 1.0
      * */
     void setLanguage(String newLanguage);
+
+    /**
+     * Sets or updates translations for the specified {@code key} across one or more languages.
+     * <p>The {@code values} parameter must contain alternating language names and translated strings
+     * (e.g., {@code "english", "Hello World!", "russian", "Привет, мир!"}).
+     * @param key the translation key to add or update.
+     * @param values alternating pairs of language names and their corresponding translations.
+     * @return this parser instance after updating translations.
+     * @since 1.3
+     * */
+    ILXParser set(String key, String... values);
+
+    /**
+     * Saves all loaded translations back to the original localization file.
+     * @throws IOException if an I/O error occurs while writing to the file.
+     * @since 1.3
+     * @see #saveTo(File)
+     * */
+    void save() throws IOException;
+
+    /**
+     * Saves all loaded translations to the specified target {@code file} in UTF-8 encoding.
+     * @param file the destination file to write the localization data to.
+     * @throws IOException if an I/O error occurs while writing to the file.
+     * @since 1.3
+     * @see #save()
+     * */
+    void saveTo(File file) throws IOException;
 }

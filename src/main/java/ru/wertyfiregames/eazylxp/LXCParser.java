@@ -37,7 +37,7 @@ public class LXCParser implements ILXParser {
     /**
      * Loaded translations mapped as {@code Map<String key, Map<String language, String value>>}
      * @since 1.0
-     * @see #languagesIndex
+     * @see #languageIndices
      * */
     private final Map<String, Map<String, String>> translations = new HashMap<>();
     /**
@@ -45,7 +45,7 @@ public class LXCParser implements ILXParser {
      * @since 1.0
      * @see #translations
      * */
-    private final Map<String, Integer> languagesIndex = new HashMap<>();
+    private final Map<String, Integer> languageIndices = new HashMap<>();
 
     /**
      * Private constructor to prevent direct instantiation without parameters.
@@ -57,7 +57,9 @@ public class LXCParser implements ILXParser {
     }
 
     /**
-     * Constructs a new {@code LXCParser} instance and immediately parses the specified file.
+     * Constructs a new {@code LXCParser} instance and immediately parses the specified file if it exists and is not empty.
+     * <p>If {@code file} does not exist yet or is empty ({@code 0} bytes), the parser is initialized empty so translations
+     * can be added via {@link #set(String, String...)} and written later using {@link #save()}.
      * Unlike {@link LocalizationFile}, which suppresses exceptions, this parser throws an
      * {@link LXCSyntaxException} if the file syntax is invalid.
      * @param file the {@code .lxc} or {@code .lexc} file to parse.
@@ -71,7 +73,8 @@ public class LXCParser implements ILXParser {
         lxc = file;
         language = defaultLanguage;
 
-        processStrings();
+        if (file != null && file.length() > 0)
+            processStrings();
     }
 
     /**
@@ -100,7 +103,7 @@ public class LXCParser implements ILXParser {
 
             String[] headerParts = header.split("\\|");
             for (int i = 1; i < headerParts.length; i++) {
-                languagesIndex.put(headerParts[i], i);
+                languageIndices.put(headerParts[i], i);
             }
 
             String line;
@@ -121,17 +124,32 @@ public class LXCParser implements ILXParser {
     }
 
     /**
-     * Merges translations and languages from another {@code LXCParser} into this instance,
-     * overwriting existing translations when keys and languages collide.
-     * <p>This is a convenience overload for {@link #merge(LXCParser, boolean)} with
-     * {@code prioritizeNew} set to {@code true}.
-     * @param parser the {@code LXCParser} whose translations will be merged into this parser.
-     * @return this {@code LXCParser} instance after merging.
-     * @since 1.3
-     * @see #merge(LXCParser, boolean)
+     * Reads the next non-empty line from the reader, stripping out any comments.
+     * @param reader an initialized {@code BufferedReader}.
+     * @return the next valid line, or {@code null} if the end of the stream is reached.
+     * @throws IOException if an I/O error occurs while reading.
+     * @since 1.1
      * */
-    public LXCParser merge(LXCParser parser) {
-        return merge(parser, true);
+    private String readLine(BufferedReader reader) throws IOException {
+        String line;
+
+        while ((line = reader.readLine()) != null) {
+            line = line.trim();
+
+            if (line.isEmpty())
+                continue;
+
+            if (line.startsWith("#"))
+                continue;
+
+            int hashIndex = line.indexOf('#');
+            if (hashIndex != -1)
+                line = line.substring(0, hashIndex).trim();
+
+            return line;
+        }
+
+        return null;
     }
 
     /**
@@ -149,9 +167,9 @@ public class LXCParser implements ILXParser {
     public LXCParser merge(LXCParser parser, boolean prioritizeNew) {
         if (parser == null || this == parser) return this;
 
-        for (String lang : parser.languagesIndex.keySet()) {
-            if (!languagesIndex.containsKey(lang))
-                languagesIndex.put(lang, languagesIndex.size() + 1);
+        for (String lang : parser.languageIndices.keySet()) {
+            if (!languageIndices.containsKey(lang))
+                languageIndices.put(lang, languageIndices.size() + 1);
         }
 
         for (Map.Entry<String, Map<String, String>> entry : parser.translations.entrySet()) {
@@ -188,7 +206,7 @@ public class LXCParser implements ILXParser {
      * @since 1.0
      * */
     public int getLanguageIndex(String language) {
-        return languagesIndex.getOrDefault(language, -1);
+        return languageIndices.getOrDefault(language, -1);
     }
 
     /**
@@ -208,31 +226,73 @@ public class LXCParser implements ILXParser {
     }
 
     /**
-     * Reads the next non-empty line from the reader, stripping out any comments.
-     * @param reader an initialized {@code BufferedReader}.
-     * @return the next valid line, or {@code null} if the end of the stream is reached.
-     * @throws IOException if an I/O error occurs while reading.
-     * @since 1.1
+     * Sets or updates translations for the specified {@code key} across one or more languages.
+     * <p>The {@code values} varargs must contain alternating language names and translated strings
+     * (e.g., {@code "english", "Hello World!", "russian", "Привет, мир!"}). Any languages not yet present in
+     * the parser will be added automatically.
+     * @param key the translation key to add or update.
+     * @param values alternating pairs of language names and their corresponding translations.
+     * @return this {@code LXCParser} instance after updating translations.
+     * @since 1.3
      * */
-    private String readLine(BufferedReader reader) throws IOException {
-        String line;
+    public ILXParser set(String key, String... values) {
+        if (key == null || values == null)
+            throw new IllegalArgumentException("Key and values must not be null.");
 
-        while ((line = reader.readLine()) != null) {
-            line = line.trim();
+        if (values.length % 2 != 0)
+            throw new IllegalArgumentException("Values must be provided in 'language, translation' pairs (even length).");
 
-            if (line.isEmpty())
-                continue;
+        for (int i = 0; i < values.length; i += 2) {
+            String lang = values[i];
+            String translation = values[i + 1];
+            if (lang == null || translation == null)
+                throw new IllegalArgumentException("Language and translation values must not be null.");
 
-            if (line.startsWith("#"))
-                continue;
-
-            int hashIndex = line.indexOf('#');
-            if (hashIndex != -1)
-                line = line.substring(0, hashIndex).trim();
-
-            return line;
+            languageIndices.putIfAbsent(lang, languageIndices.size() + 1);
+            translations.computeIfAbsent(key, ignored -> new HashMap<>()).put(lang, translation);
         }
 
-        return null;
+        return this;
+    }
+
+    /**
+     * Saves all loaded translations back to the original {@code .lxc} or {@code .lexc} file.
+     * @throws IOException if an I/O error occurs while writing to the file.
+     * @since 1.3
+     * @see #saveTo(File)
+     * */
+    public void save() throws IOException {
+        saveTo(lxc);
+    }
+
+    /**
+     * Saves all loaded translations to the specified target {@code file} in UTF-8 encoding.
+     * @param file the destination {@code .lxc} or {@code .lexc} file to write to.
+     * @throws IOException if an I/O error occurs while writing to the file.
+     * @since 1.3
+     * @see #save()
+     * */
+    public void saveTo(File file) throws IOException {
+        StringBuilder output = new StringBuilder();
+        output.append("!version ").append(LATEST_LXC_VERSION).append("\n");
+
+        String[] orderedLangs = new String[languageIndices.size()];
+        for (Map.Entry<String, Integer> entry : languageIndices.entrySet())
+            orderedLangs[entry.getValue() - 1] = entry.getKey();
+
+        output.append("key");
+        for (String lang : orderedLangs) output.append("|").append(lang);
+        output.append("\n");
+
+        for (Map.Entry<String, Map<String, String>> entry : translations.entrySet()) {
+            String key = entry.getKey();
+            Map<String, String> translations = entry.getValue();
+
+            output.append("\n").append(key);
+            for (String lang : orderedLangs)
+                output.append("|").append(translations.getOrDefault(lang, ""));
+        }
+
+        Files.writeString(file.toPath(), output.toString(), StandardCharsets.UTF_8);
     }
 }

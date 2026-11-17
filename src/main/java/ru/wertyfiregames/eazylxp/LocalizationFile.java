@@ -124,6 +124,57 @@ public class LocalizationFile {
     }
 
     /**
+     * Sets or updates translations for the specified {@code key} across one or more languages.
+     * <p>The {@code values} array must contain alternating language names and translated strings
+     * (e.g., {@code "english", "Hello World!", "russian", "Привет, мир!"}). If an error occurs
+     * (such as an odd number of elements or {@code null} arguments), it is logged and ignored.
+     * @param key the translation key to add or update.
+     * @param values alternating pairs of language names and their corresponding translations.
+     * @return this {@code LocalizationFile} instance after updating translations.
+     * @since 1.3
+     * @see ILXParser#set(String, String[])
+     * */
+    public LocalizationFile set(String key, String... values) {
+        try {
+            lxParser.set(key, values);
+        } catch (Exception e) {
+            LOGGER.log(Level.SEVERE, "Failed to set translation for key: " + key, e);
+        }
+        return this;
+    }
+
+    /**
+     * Saves all loaded translations back to the original localization file.
+     * <p>If an error occurs while writing to the file, it is logged and ignored.
+     * @since 1.3
+     * @see #saveTo(File)
+     * @see ILXParser#save()
+     * */
+    public void save() {
+        try {
+            lxParser.save();
+        } catch (Exception e) {
+            LOGGER.log(Level.SEVERE, "Failed to save localization file", e);
+        }
+    }
+
+    /**
+     * Saves all loaded translations to the specified target {@code file}.
+     * <p>If an error occurs while writing to the file, it is logged and ignored.
+     * @param file the destination file to write the localization data to.
+     * @since 1.3
+     * @see #save()
+     * @see ILXParser#saveTo(File)
+     * */
+    public void saveTo(File file) {
+        try {
+            lxParser.saveTo(file);
+        } catch (Exception e) {
+            LOGGER.log(Level.SEVERE, "Failed to save localization file: " + (file != null ? file.getPath() : "null"), e);
+        }
+    }
+
+    /**
      * Merges translations and languages from another {@code LocalizationFile} into this instance,
      * overwriting existing translations when keys and languages collide.
      * <p>This is a convenience overload for {@link #merge(LocalizationFile, boolean)} with
@@ -154,5 +205,17 @@ public class LocalizationFile {
             currentParser.merge(newParser, prioritizeNew);
         }
         return this;
+    }
+
+    /**
+     * Returns the underlying {@link ILXParser} instance used by this wrapper.
+     * <p>If initialization fails, this method returns the fallback {@link EmptyLXParser}.
+     * @return the underlying {@link ILXParser} implementation.
+     * @since 1.3
+     * @see ILXParser
+     * @see EmptyLXParser
+     * */
+    public ILXParser direct() {
+        return lxParser;
     }
 }

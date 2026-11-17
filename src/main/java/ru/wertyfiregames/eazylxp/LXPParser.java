@@ -161,4 +161,21 @@ public class LXPParser implements ILXParser {
 
         return null;
     }
+
+    /**
+     * No realization because LXP support is in development.
+     * */
+    public ILXParser set(String key, String[] values) {
+        return this;
+    }
+
+    /**
+     * No realization because LXP support is in development.
+     * */
+    public void save() {}
+
+    /**
+     * No realization because LXP support is in development.
+     * */
+    public void saveTo(File file) {}
 }

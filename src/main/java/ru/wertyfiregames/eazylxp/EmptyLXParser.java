@@ -1,5 +1,8 @@
 package ru.wertyfiregames.eazylxp;
 
+import java.io.File;
+import java.io.IOException;
+
 /**
  * A fallback no-op implementation of {@link ILXParser}.
  * Used by {@link LocalizationFile} when a localization file cannot be found, read, or parsed.
@@ -17,6 +20,18 @@ public class EmptyLXParser implements ILXParser {
     }
     @Override
     public void setLanguage(String newLanguage) {
+        //do nothing
+    }
+    @Override
+    public ILXParser set(String key, String... values) {
+        return this;
+    }
+    @Override
+    public void save() {
+        //do nothing
+    }
+    @Override
+    public void saveTo(File file) {
         //do nothing
     }
 

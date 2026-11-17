@@ -41,6 +41,7 @@
  * *note1: Here you can pass either new File("path/to/your/file.lxc") or write "path/to/your/file.lxc".
  * <p>If the path starts with '/', the program will search for the file using {@code getClass().getResource(path)}.
  * You can also combine multiple localization files or add new languages at runtime using
- * {@link LocalizationFile#merge(LocalizationFile)}.
+ * {@link LocalizationFile#merge(LocalizationFile)}, as well as modify and save translations via
+ * {@link LocalizationFile#set(String, String...)} and {@link LocalizationFile#save()}.
  * */
 package ru.wertyfiregames.eazylxp;
