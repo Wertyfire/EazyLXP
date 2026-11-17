@@ -1,23 +1,22 @@
-!version 3
+!version 1
 
 languages {
     en
     ru
 }
 
-translation {
-    sword {
-        en {
-            one: Sword
-            few: Swords
-            many: Swords
-        }
+translations:
+
+sword {
+    en {
+        gender: middle
+        one: Sword
+        few: Swords
+        many: Swords
     }
-    item_picked_up {
-        placeholders {
-            sword
-        }
-        en {
-        }
+}
+item_picked_up {
+    en {
+        text = "Item {$tr:sword:AaAa}"
     }
 }
