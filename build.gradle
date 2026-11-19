@@ -24,10 +24,6 @@ tasks.withType(JavaExec).configureEach {
     jvmArgs '-Dsun.stdout.encoding=UTF-8', '-Dsun.stderr.encoding=UTF-8'
 }
 
-tasks.named('jar') {
-    archiveClassifier = 'runtime'
-}
-
 base {
     archivesName = "eazylxp"
 }
