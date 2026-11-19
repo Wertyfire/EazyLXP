@@ -2,3 +2,9 @@
 key|english|russian|uzbek
 hello|Hello!|Привет!|Ай братан шаверма какой вкусный будишь, а братан ! бэри! эээ
 sus|sus|Сус|Эй cус сас эээ
+
+comment_test|Translation 1|Перевод 1|ЭЭ ай /*первий*/ перевод # tes/*t
+comment_test_2|Translation \/* <--|Перевод /*слово\*/на русский|ЭЭ это перевод с \#?
+/*comment_test_3|Abobus|Абобус|Эээ аяяй абобус
+some_else*/comment_test_4|Eng|Рус|Узб
+escape_test|This text contains '\|' symbol|Этот текст содержит символ '\|'|Ээ братааан тут есть \| прикинь а
