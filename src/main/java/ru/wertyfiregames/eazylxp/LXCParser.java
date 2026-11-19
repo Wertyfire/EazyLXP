@@ -9,7 +9,9 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -33,7 +35,7 @@ public class LXCParser implements ILXParser {
      * Latest supported version of lxc.
      * @since 1.0
      * */
-    public final int LATEST_LXC_VERSION = 3;
+    public final int LATEST_LXC_VERSION = 4;
     /**
      * Loaded translations mapped as {@code Map<String key, Map<String language, String value>>}
      * @since 1.0
@@ -78,9 +80,10 @@ public class LXCParser implements ILXParser {
     }
 
     /**
-     * Parse all lines in localization file. If syntax invalid, throws {@code LXCSyntaxException}.
+     * Parses all lines in the localization file, stripping comments and populating
+     * language indices and translation mappings.
      * @throws IOException if an I/O error occurs while reading the file.
-     * @throws LXCSyntaxException if lxc syntax is invalid.
+     * @throws LXCSyntaxException if the file contains invalid LXC syntax.
      * @since 1.0
      * */
     private void processStrings() throws IOException, LXCSyntaxException {
@@ -109,14 +112,14 @@ public class LXCParser implements ILXParser {
             String line;
 
             while ((line = readLine(reader)) != null) {
-                String[] parts = line.split("\\|", -1);
-                if (parts.length != headerParts.length)
+                List<String> parts = split(line);
+                if (parts.size() != headerParts.length)
                     throw new LXCSyntaxException("Line '" + line + "' does not match the header format '" + header + "'.");
 
-                String key = parts[0];
+                String key = parts.getFirst();
                 Map<String, String> translationMap = new HashMap<>();
-                for (int i = 1; i < parts.length; i++) {
-                    translationMap.put(headerParts[i], parts[i]);
+                for (int i = 1; i < parts.size(); i++) {
+                    translationMap.put(headerParts[i], parts.get(i));
                 }
                 translations.put(key, translationMap);
             }
@@ -124,13 +127,64 @@ public class LXCParser implements ILXParser {
     }
 
     /**
-     * Reads the next non-empty line from the reader, stripping out any comments.
+     * Splits a cleaned LXC line into column values using {@code '|'} as a delimiter,
+     * while resolving escaped characters ({@code \|} and {@code \\}).
+     * @param source the line to split (with comments already stripped).
+     * @return a {@link List} of unescaped column strings.
+     * @since 1.3
+     * */
+    private List<String> split(String source) {
+        List<String> translations = new ArrayList<>();
+
+        char[] c = source.toCharArray();
+
+        StringBuilder output = new StringBuilder();
+
+        for (int i = 0; i < c.length; i++) {
+            if (c[i] == '\\') {
+                if (i + 1 < c.length) {
+                    if (c[i + 1] == '\\') {
+                        output.append('\\');
+                        i++;
+                        continue;
+                    }
+                    if (c[i + 1] == '|') {
+                        output.append('|');
+                        i++;
+                        continue;
+                    }
+                }
+            }
+
+            if (c[i] == '|') {
+                translations.add(output.toString());
+                output.setLength(0);
+                continue;
+            }
+
+            output.append(c[i]);
+        }
+        translations.add(output.toString());
+
+        return translations;
+    }
+
+    /**
+     * Tracks whether the reader is currently inside a multi-line comment block ({@code /* ... *}{@code /}).
+     * @since 1.3
+     * */
+    private boolean insideComment = false;
+
+    /**
+     * Reads the next non-empty line from the reader, stripping out any single-line or multi-line comments.
      * @param reader an initialized {@code BufferedReader}.
      * @return the next valid line, or {@code null} if the end of the stream is reached.
      * @throws IOException if an I/O error occurs while reading.
+     * @throws LXCSyntaxException if program finds an unclosed multi-line comment.
      * @since 1.1
+     * @see #stripComments(String)
      * */
-    private String readLine(BufferedReader reader) throws IOException {
+    private String readLine(BufferedReader reader) throws IOException, LXCSyntaxException {
         String line;
 
         while ((line = reader.readLine()) != null) {
@@ -139,17 +193,70 @@ public class LXCParser implements ILXParser {
             if (line.isEmpty())
                 continue;
 
-            if (line.startsWith("#"))
-                continue;
-
-            int hashIndex = line.indexOf('#');
-            if (hashIndex != -1)
-                line = line.substring(0, hashIndex).trim();
+            line = stripComments(line);
+            if (line.isEmpty()) continue;
 
             return line;
         }
 
+        if (insideComment)
+            throw new LXCSyntaxException("Unclosed multi-line comment in LXC file.");
+
         return null;
+    }
+
+    /**
+     * Strips single-line ({@code #}) and multi-line ({@code /* ... *}{@code /}) comments from the given line,
+     * preserving escaped comment tokens ({@code \#}, {@code \/*}, {@code \\}).
+     * @param sourceLine the raw line read from the file.
+     * @return the trimmed line with comments removed, or an empty string if the entire line was commented out.
+     * @since 1.3
+     * */
+    private String stripComments(String sourceLine) {
+        StringBuilder output = new StringBuilder();
+        char[] c = sourceLine.toCharArray();
+        for (int i = 0; i < c.length; i++) {
+            if (insideComment) {
+                if (i + 1 < c.length && c[i] == '*' && c[i + 1] == '/') {
+                    insideComment = false;
+                    i++;
+                }
+                continue;
+            }
+
+            if (c[i] == '\\') {
+                if (i + 1 < c.length) {
+                    if (c[i + 1] == '\\') {
+                        output.append('\\').append('\\'); //preserve backslashes for the line-splitting stage
+                        i++;
+                        continue;
+                    }
+                    if (c[i + 1] == '#') {
+                        output.append('#');
+                        i++;
+                        continue;
+                    }
+                    if (i + 2 < c.length) {
+                        if (c[i + 1] == '/' && c[i + 2] == '*') {
+                            output.append("/*");
+                            i += 2;
+                            continue;
+                        }
+                    }
+                }
+            }
+
+            if (i + 1 < c.length && c[i] == '/' && c[i + 1] == '*') {
+                insideComment = true;
+                i++;
+                continue;
+            }
+
+            if (c[i] == '#') break;
+
+            output.append(c[i]);
+        }
+        return output.toString().trim();
     }
 
     /**
