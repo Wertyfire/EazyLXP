@@ -64,6 +64,9 @@ key|english|russian|chinese
 
 hello|Hello!|Привет!|<some hieroglyphs> #Inline comment
 item_picked|You picked up an item|Вы подобрали предмет|<some hieroglyphs>
+/* Multi-line comment
+This text will be ignored too*/world|World|Мир|<some hieroglyphs>
+escape_example|This text will contain \| pipe symbol and \\ escaped backslash|Этот текст содержит символ \| вертикальной черты и \\ экранированный обратный слеш
 ```
 
 ### Syntax Rules
@@ -128,8 +131,9 @@ public class StrictExample {
 
 * [x] Table-based format support (`.lxc` / `.lexc`)  
 * [x] Safe fallback wrapper (`LocalizationFile` + `EmptyLXParser`)
-* [ ] Add multi-line comments support
-* [ ] Add escape sequences for special characters (`\|`, `\#`)
+* [x] Add multi-line comments support
+* [x] Add escape sequences for special characters (`\|`, `\#`)
+* [x] Add ability to modify translations from the code and save them to a file
 
 ## LXP
 
