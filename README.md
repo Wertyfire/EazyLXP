@@ -25,9 +25,9 @@ repositories {
 }
 
 dependencies {
-    var eazylxpVersion = "1.2"
+    var eazylxpVersion = "1.3"
     
-    implementation("ru.wertyfiregames:eazylxp:$eazylxpVersion:runtime")
+    implementation("ru.wertyfiregames:eazylxp:$eazylxpVersion")
 }
 ```
 
@@ -58,7 +58,7 @@ Both `.lxc` and `.lexc` extensions are supported and treated identically.
 ### Example `translations.lexc`
 
 ```text
-!version 3
+!version 4
 #Supported languages header
 key|english|russian|chinese
 
