@@ -65,7 +65,7 @@ hello|Hello!|Привет!|<some hieroglyphs> #Inline comment
 item_picked|You picked up an item|Вы подобрали предмет|<some hieroglyphs>
 /* Multi-line comment
 This text will be ignored too*/world|World|Мир|<some hieroglyphs>
-escape_example|This text will contain \| pipe symbol and \\ escaped backslash|Этот текст содержит символ \| вертикальной черты и \\ экранированный обратный слеш
+escape_example|This text will contain \| pipe symbol and \\ escaped backslash|Этот текст содержит символ \| вертикальной черты и \\ экранированный обратный слеш|<another hieroglyphs>
 ```
 
 ### Syntax Rules
