@@ -44,8 +44,7 @@ dependencies {
 <dependency>
     <groupId>ru.wertyfiregames</groupId>
     <artifactId>eazylxp</artifactId>
-    <version>1.2</version>
-    <classifier>runtime</classifier>
+    <version>1.3</version>
 </dependency>
 ```
 
